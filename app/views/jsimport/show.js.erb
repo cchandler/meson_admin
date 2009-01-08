@@ -1,0 +1,131 @@
+
+//Setup the DOM parser
+
+if(typeof(DOMParser) == 'undefined') {
+  var DOMParser = Class.create(
+  { initialize : function(){},
+    parseFromString: function(text,mimetype){
+      try {
+           var parser = new ActiveXObject("Microsoft.XMLDOM");
+           parser.async = "false";
+           result = parser.loadXML(text);
+           return parser;
+       }
+       catch(e) {
+           alert("can't find suitable XML parser! what kind of crazy browser are you using?");
+       }
+    }
+  }
+  )
+ }
+
+
+
+
+
+try
+{	
+document.domain = document.domain;
+Orbited.settings.port = 8000;
+Orbited.settings.hostname = 'localhost';
+TCPSocket = Orbited.TCPSocket;
+
+
+document.observe('dom:loaded', function(){
+       
+        setupOrbited();
+           
+           xmpp = new XMPPClient();
+            xmpp.onPresence = function(ntype, from, to) {
+             if (! ntype) {
+             // userList.onUserAvailable(from, from);
+             console.log("User available " + from + " " + to);
+             buddyListPresenceCallback(ntype, from, to, true);
+             }
+             else if (ntype == "unavailable") {
+             // userList.onUserUnavailable(from);
+             console.log("User unavailable " + from);
+             buddyListPresenceCallback(ntype, from, to, false);
+             }
+             else if (ntype == "subscribe") {
+             xmpp.sendSubscribed(from, to);
+             }
+             else if (ntype == "subscribed") {
+             // alert(from + " added to your buddy list!");
+             console.log(from + " added to your buddy list");
+             }
+             else if (ntype == "unsubscribed") {
+             // userList.onUserUnavailable(from);
+             console.log("Unsubscribed " + from);
+             }
+            }
+            xmpp.onMessage = function(jid,username,text){ 
+              // console.log("Received message: " + text);
+              // console.log(jid + " " + username); console.log(text);
+              
+            };
+            xmpp.onSocketConnect = function() {
+             xmpp.connectServer("localhost", connectSuccess, connectFailure);
+             // console.log("Connected");
+            }
+            xmpp.connect('localhost', 5222);
+            // success / failure callbacks
+            function registerSuccess() {
+             alert("Welcome!");
+            }
+            function registerFailure() {
+             if (confirm("That user name is taken. Try again?")) {
+             prompt_register();
+             }
+            }
+            function loginSuccess() {
+             alert("Welcome!");
+            }
+            function loginFailure() {
+             if (confirm("Login failed. Register a new user account?")) {
+             prompt_register();
+             }
+             else {
+             prompt_login();
+             }
+           }
+           
+           function registerSuccess() {
+            alert("Welcome!");
+           }
+           function registerFailure() {
+            if (confirm("That user name is taken. Try again?")) {
+            prompt_register();
+            }
+           }
+           function loginSuccess() {
+           }
+           function loginFailure() {
+            if (confirm("Login failed. Register a new user account?")) {
+            prompt_register();
+            }
+            else {
+            prompt_login();
+            }
+           }
+           function connectSuccess() {
+            prompt_login();
+           }
+           function connectFailure() {
+            alert("Unknown domain");
+           }
+           ////
+           // helpers
+           function prompt_login() {
+            xmpp.login('<%= @current_user.nickname %>', '<%= @current_user.online_token %>', loginSuccess, loginFailure);
+           }
+           
+           
+        });
+}
+catch(e)
+{
+	alert(e);
+}
+
+alert("Loaded");

@@ -1,0 +1,19 @@
+Create a new Meson account
+<%= form_for @account, :action => url(:accounts) do %>
+	<div>
+		<%= label "Your site's URI: ", :for => :uri %>
+		<%= text_field :uri %>
+	</div>
+	
+	<div>
+		<%= label "Select a vhost name", :for => :vhost_name %>
+		<%= text_field :vhost_name %>
+	</div>
+
+	<div>
+		<%= label "Select a vhost username", :for => :vhost_user %>
+		<%= text_field :vhost_user %>
+	</div>
+  
+  <%= submit 'Create account' %>
+<% end =%>
